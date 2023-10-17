@@ -98,7 +98,7 @@ void test_tree_to_string() {
 //         s += rule_get_num_strings(rule, grammar, l_str) 
 //     return s
 
-int rule_get_num_strings(Rule* rule, Grammar* grammar, int l_str);
+int rule_get_num_strings(int* tokens, int len, Grammar* grammar, int l_str);
 
 int key_get_num_strings(int key, Grammar* grammar, int l_str) {
   if (!is_nonterminal(key))
@@ -106,7 +106,8 @@ int key_get_num_strings(int key, Grammar* grammar, int l_str) {
   int s = 0;
   Def* def = &grammar->defs[-key]; // indexed negative
   for (int i = 0; i < def->len; i++) {
-    s += rule_get_num_strings(&def->rules[i], grammar, l_str);
+    Rule* r = &def->rules[i];
+    s += rule_get_num_strings(r->tokens, r->len, grammar, l_str);
   }
   return s;
 }
@@ -127,9 +128,7 @@ int key_get_num_strings(int key, Grammar* grammar, int l_str) {
 //         sum_rule += s_ * rem
 //     return sum_rule
 
-int rule_get_num_strings(Rule* rule, Grammar* grammar, int l_str);
-
-int rule_get_num_strings_(int* tokens, int len, Grammar* grammar, int l_str) {
+int rule_get_num_strings(int* tokens, int len, Grammar* grammar, int l_str) {
   if (!len) return 0; // empty rule
   if (len == 1) return key_get_num_strings(tokens[0], grammar, l_str); // if not tail
 
@@ -140,116 +139,17 @@ int rule_get_num_strings_(int* tokens, int len, Grammar* grammar, int l_str) {
     int s_ = key_get_num_strings(token, grammar, l_str_x);
     if (s_ == 0) continue;
 
-    int rem = rule_get_num_strings_(tail, len-1, grammar, l_str - l_str_x );
+    int rem = rule_get_num_strings(tail, len-1, grammar, l_str - l_str_x );
     sum_rule += s_ * rem;
   }
   return sum_rule;
 
 }
 
-int rule_get_num_strings(Rule* rule, Grammar* grammar, int l_str) {
-  return rule_get_num_strings_(rule->tokens, rule->len, grammar, l_str);
-}
-
 void test_count_rules() {
 #include "defs.h"
-  /*
-  int start = 0;
-  int digits = -1;
-  int digit = -2;
-  int start_rule1_tokens[] = {digits};
-
-  Rule start_rule1 = {
-    .len = 1,
-    .tokens = start_rule1_tokens
-  };
-  Rule start_rules[] = {start_rule1};
-
-  Def def_start = {.name = "start",
-    .len=1,
-    .rules = start_rules
-  };
-
-  int digits_rule1_tokens[] = {digit, digits};
-  int digits_rule2_tokens[] = {digit};
-  Rule digits_rule1 = {
-    .len = 2,
-    .tokens = digits_rule1_tokens
-  };
-  Rule digits_rule2 = {
-    .len = 1,
-    .tokens = digits_rule2_tokens
-  };
-
-  Rule digits_rules[] = {digits_rule1, digits_rule2};
-
-  Def def_digits = {.name="digits",
-    .len=2,
-    .rules = digits_rules
-  };
-
-
-  int digit_rule1_tokens[] = {'1'};
-  Rule digit_rule1 = { .len = 1, .tokens = digit_rule1_tokens };
-
-  int digit_rule2_tokens[] = {'2'};
-  Rule digit_rule2 = { .len = 1, .tokens = digit_rule2_tokens };
-
-  int digit_rule3_tokens[] = {'3'};
-  Rule digit_rule3 = { .len = 1, .tokens = digit_rule3_tokens };
-
-  int digit_rule4_tokens[] = {'4'};
-  Rule digit_rule4 = { .len = 1, .tokens = digit_rule4_tokens };
- 
-  int digit_rule5_tokens[] = {'5'};
-  Rule digit_rule5 = { .len = 1, .tokens = digit_rule5_tokens };
-
-
-  int digit_rule6_tokens[] = {'6'};
-  Rule digit_rule6 = { .len = 1, .tokens = digit_rule6_tokens };
-
-  int digit_rule7_tokens[] = {'7'};
-  Rule digit_rule7 = { .len = 1, .tokens = digit_rule7_tokens };
-
-  int digit_rule8_tokens[] = {'8'};
-  Rule digit_rule8 = { .len = 1, .tokens = digit_rule8_tokens };
-
-  int digit_rule9_tokens[] = {'9'};
-  Rule digit_rule9 = { .len = 1, .tokens = digit_rule9_tokens };
- 
-  int digit_rule0_tokens[] = {'0'};
-  Rule digit_rule0 = { .len = 1, .tokens = digit_rule0_tokens };
-
- 
-  Rule digit_rules[] = {
-    digit_rule0,
-    digit_rule1,
-    digit_rule2,
-    digit_rule3,
-    digit_rule4,
-    digit_rule5,
-    digit_rule6,
-    digit_rule7,
-    digit_rule8,
-    digit_rule9
-  };
-  Def def_digit = {.name="digit",
-    .len=10,
-    .rules = digit_rules
-  };
-
-
-  Def my_defs[3] = { def_start, def_digits, def_digit };
-
-  Grammar g = {
-    .len = 3,
-    .defs = my_defs
-  };
-  */
-
   int count = key_get_num_strings(0, &g, 2);
   printf("%d\n", count);
-
 }
 
 
@@ -306,7 +206,13 @@ def get_strings_of_length_in_definition(key, grammar, l_str):
         s_ = get_strings_of_length_in_rule(rule, grammar, l_str)
         s.extend(s_)
     return s
+*/
 
+void get_strings_of_length_in_definition(int key, Grammar *grammar, int l_str) {
+  return;
+}
+
+/*
 # Next, we come to the rule implementation given by `get_strings_of_length_in_rule()`
 # Here, we treat each rule as a head followed by a tail. The token is the first
 # symbol in the rule. The idea is that, the strings that are generated from this
