@@ -102,7 +102,7 @@ void test_tree_to_string() {
 //         s += rule_get_num_strings(rule, grammar, l_str) 
 //     return s
 
-int rule_get_num_strings(int key, int rule, int* tokens, int len, Grammar* grammar, int l_str);
+int rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str);
 
 int key_get_num_strings(int key, Grammar* grammar, int l_str) {
   if (!is_nonterminal(key)) {
@@ -116,7 +116,7 @@ int key_get_num_strings(int key, Grammar* grammar, int l_str) {
   Def* def = &grammar->defs[-key]; // indexed negative
   for (int i = 0; i < def->len; i++) {
     Rule* r = &def->rules[i];
-    s += rule_get_num_strings(key, i, r->tokens, r->len, grammar, l_str);
+    s += rule_get_num_strings(key, i, 0, r->tokens, r->len, grammar, l_str);
   }
   set_key_count_at_length(key, l_str, s);
   return s;
@@ -138,18 +138,18 @@ int key_get_num_strings(int key, Grammar* grammar, int l_str) {
 //         sum_rule += s_ * rem
 //     return sum_rule
 
-int rule_get_num_strings(int key, int rule, int* tokens, int len, Grammar* grammar, int l_str) {
-  max_count_t v = get_rule_count_at_length(key, rule, len, l_str);
+int rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str) {
+  max_count_t v = get_rule_count_at_length(key, rule, pos, l_str);
   if (v != UNINITIALIZED) return v;
 
   if (!len) {
     v = 0;
-    //set_rule_count_at_length(key, rule, len, l_str, v);
+    set_rule_count_at_length(key, rule, pos, l_str, v);
     return v; // empty rule
   }
   if (len == 1) {
     v = key_get_num_strings(tokens[0], grammar, l_str); // if not tail
-    //set_rule_count_at_length(key, rule, len, l_str, v);
+    set_rule_count_at_length(key, rule, pos, l_str, v);
     return v;
   }
 
@@ -160,35 +160,18 @@ int rule_get_num_strings(int key, int rule, int* tokens, int len, Grammar* gramm
     int s_ = key_get_num_strings(token, grammar, l_str_x);
     if (s_ == 0) continue;
 
-    int rem = rule_get_num_strings(key, rule, tail, len-1, grammar, l_str - l_str_x );
+    int rem = rule_get_num_strings(key, rule, pos+1, tail, len-1, grammar, l_str - l_str_x );
     sum_rule += s_ * rem;
   }
-  //set_rule_count_at_length(key, rule, len, l_str, sum_rule);
+  set_rule_count_at_length(key, rule, pos, l_str, sum_rule);
   return sum_rule;
-}
-
-void initialize_cache(max_count_t size) {
-  for (int key = 0; key < Cache_G.len; key++) {
-    //initialize_def(Cache_G);
-    Cache_Def* def = &Cache_G.defs[key];
-    assert(def->len >= 0);
-    for (int irule = 0; irule < def->len; irule++) {
-      Cache_Rule* rule = &def->rules[irule];
-      assert(rule->len >= 0);
-      for (int itoken=0; itoken < rule->len; itoken++) {
-        for (int l = 0; l < size; l++) {
-          rule->tokens[itoken][l] = UNINITIALIZED;
-        }
-      }
-    }
-  }
 }
 
 void test_count_rules() {
 #include "defs.h"
-  initialize_cache(2);
-  int count = key_get_num_strings(0, &g, 2);
-  printf("%d\n", count);
+  int count = key_get_num_strings(0, &g, 8);
+  int count2 = key_get_num_strings(0, &g, 32);
+  printf("%d, %d\n", count, count2);
 }
 
 
