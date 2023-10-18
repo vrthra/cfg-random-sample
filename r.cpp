@@ -1,4 +1,5 @@
 #include <string.h>
+#include <assert.h>
 #include <stdio.h>
 
 class TreeNode {
@@ -22,6 +23,8 @@ struct Grammar {
   int len;
   Def* defs; // -i indexes
 };
+
+#include "d.h"
 
 // def is_nonterminal(key):
 //     return (key[0], key[-1]) == ('<', '>')
@@ -52,13 +55,12 @@ bool is_nonterminal(int key) {
 int MAX_TREE_NODES_IN_STACK = 1000;
 int MAX_STRING_SIZE=1000;
 
-char* tree_to_string(TreeNode* tree) {
+char* tree_to_string(TreeNode* tree, char* expanded) {
     TreeNode* to_expand[MAX_TREE_NODES_IN_STACK]; // Array to store nodes to expand
     int to_expand_size = 1;
     to_expand[0] = tree;
     to_expand[1] = 0; // remove
 
-    char *expanded = new char[MAX_STRING_SIZE]; // Array to store expanded characters
     int expanded_size = 0;
 
     while (to_expand_size > 0) {
@@ -85,7 +87,9 @@ void test_tree_to_string() {
   TreeNode right2 = { .key = ')', .children = 0 };
   TreeNode lroot = { .key = -1, .children = {&left2, &right2} };
   TreeNode root = { .key = -1, .children = {&rroot, &lroot} };
-  char* v = tree_to_string(&root);
+
+  char expanded[MAX_STRING_SIZE]; // Array to store expanded characters
+  char* v = tree_to_string(&root, expanded);
   printf("%s\n", v);
 }
 
@@ -98,17 +102,23 @@ void test_tree_to_string() {
 //         s += rule_get_num_strings(rule, grammar, l_str) 
 //     return s
 
-int rule_get_num_strings(int* tokens, int len, Grammar* grammar, int l_str);
+int rule_get_num_strings(int key, int rule, int* tokens, int len, Grammar* grammar, int l_str);
 
 int key_get_num_strings(int key, Grammar* grammar, int l_str) {
-  if (!is_nonterminal(key))
+  if (!is_nonterminal(key)) {
     return l_str == 1 ? 1 : 0; // we assume every terminal is size 1
+  } 
+
+  max_count_t v = get_key_count_at_length(key, l_str);
+  if (v != UNINITIALIZED) return v;
+
   int s = 0;
   Def* def = &grammar->defs[-key]; // indexed negative
   for (int i = 0; i < def->len; i++) {
     Rule* r = &def->rules[i];
-    s += rule_get_num_strings(r->tokens, r->len, grammar, l_str);
+    s += rule_get_num_strings(key, i, r->tokens, r->len, grammar, l_str);
   }
+  set_key_count_at_length(key, l_str, s);
   return s;
 }
 
@@ -128,9 +138,20 @@ int key_get_num_strings(int key, Grammar* grammar, int l_str) {
 //         sum_rule += s_ * rem
 //     return sum_rule
 
-int rule_get_num_strings(int* tokens, int len, Grammar* grammar, int l_str) {
-  if (!len) return 0; // empty rule
-  if (len == 1) return key_get_num_strings(tokens[0], grammar, l_str); // if not tail
+int rule_get_num_strings(int key, int rule, int* tokens, int len, Grammar* grammar, int l_str) {
+  max_count_t v = get_rule_count_at_length(key, rule, len, l_str);
+  if (v != UNINITIALIZED) return v;
+
+  if (!len) {
+    v = 0;
+    //set_rule_count_at_length(key, rule, len, l_str, v);
+    return v; // empty rule
+  }
+  if (len == 1) {
+    v = key_get_num_strings(tokens[0], grammar, l_str); // if not tail
+    //set_rule_count_at_length(key, rule, len, l_str, v);
+    return v;
+  }
 
   int sum_rule = 0;
   int token = tokens[0];
@@ -139,15 +160,33 @@ int rule_get_num_strings(int* tokens, int len, Grammar* grammar, int l_str) {
     int s_ = key_get_num_strings(token, grammar, l_str_x);
     if (s_ == 0) continue;
 
-    int rem = rule_get_num_strings(tail, len-1, grammar, l_str - l_str_x );
+    int rem = rule_get_num_strings(key, rule, tail, len-1, grammar, l_str - l_str_x );
     sum_rule += s_ * rem;
   }
+  //set_rule_count_at_length(key, rule, len, l_str, sum_rule);
   return sum_rule;
+}
 
+void initialize_cache(max_count_t size) {
+  for (int key = 0; key < Cache_G.len; key++) {
+    //initialize_def(Cache_G);
+    Cache_Def* def = &Cache_G.defs[key];
+    assert(def->len >= 0);
+    for (int irule = 0; irule < def->len; irule++) {
+      Cache_Rule* rule = &def->rules[irule];
+      assert(rule->len >= 0);
+      for (int itoken=0; itoken < rule->len; itoken++) {
+        for (int l = 0; l < size; l++) {
+          rule->tokens[itoken][l] = UNINITIALIZED;
+        }
+      }
+    }
+  }
 }
 
 void test_count_rules() {
 #include "defs.h"
+  initialize_cache(2);
   int count = key_get_num_strings(0, &g, 2);
   printf("%d\n", count);
 }
@@ -208,7 +247,9 @@ def get_strings_of_length_in_definition(key, grammar, l_str):
     return s
 */
 
-void get_strings_of_length_in_definition(int key, Grammar *grammar, int l_str) {
+
+
+void get_strings_of_length_in_definition_at_pos(int key, Grammar *grammar, int l_str, int pos) {
   return;
 }
 
