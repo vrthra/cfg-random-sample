@@ -102,9 +102,9 @@ void test_tree_to_string() {
 //         s += rule_get_num_strings(rule, grammar, l_str) 
 //     return s
 
-int rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str);
+max_count_t rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str);
 
-int key_get_num_strings(int key, Grammar* grammar, int l_str) {
+max_count_t key_get_num_strings(int key, Grammar* grammar, int l_str) {
   if (!is_nonterminal(key)) {
     return l_str == 1 ? 1 : 0; // we assume every terminal is size 1
   } 
@@ -112,7 +112,7 @@ int key_get_num_strings(int key, Grammar* grammar, int l_str) {
   max_count_t v = get_key_count_at_length(key, l_str);
   if (v != UNINITIALIZED) return v;
 
-  int s = 0;
+  max_count_t s = 0;
   Def* def = &grammar->defs[-key]; // indexed negative
   for (int i = 0; i < def->len; i++) {
     Rule* r = &def->rules[i];
@@ -138,7 +138,7 @@ int key_get_num_strings(int key, Grammar* grammar, int l_str) {
 //         sum_rule += s_ * rem
 //     return sum_rule
 
-int rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str) {
+max_count_t rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str) {
   max_count_t v = get_rule_count_at_length(key, rule, pos, l_str);
   if (v != UNINITIALIZED) return v;
 
@@ -153,14 +153,14 @@ int rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Gramm
     return v;
   }
 
-  int sum_rule = 0;
+  max_count_t sum_rule = 0;
   int token = tokens[0];
   int *tail = tokens+1;
   for(int l_str_x = 1; l_str_x < l_str+1; l_str_x++) {
-    int s_ = key_get_num_strings(token, grammar, l_str_x);
+    max_count_t s_ = key_get_num_strings(token, grammar, l_str_x);
     if (s_ == 0) continue;
 
-    int rem = rule_get_num_strings(key, rule, pos+1, tail, len-1, grammar, l_str - l_str_x );
+    max_count_t rem = rule_get_num_strings(key, rule, pos+1, tail, len-1, grammar, l_str - l_str_x );
     sum_rule += s_ * rem;
   }
   set_rule_count_at_length(key, rule, pos, l_str, sum_rule);
@@ -169,9 +169,12 @@ int rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Gramm
 
 void test_count_rules() {
 #include "defs.h"
-  int count = key_get_num_strings(0, &g, 8);
-  int count2 = key_get_num_strings(0, &g, 32);
-  printf("%d, %d\n", count, count2);
+  // Make sure to set the max_l_str in build-grammar-cache.py appropriately
+  int l_str = 8;
+  max_count_t count = key_get_num_strings(0, &g, l_str);
+  //l_str = 32;// I think this overflows
+  max_count_t count2 = key_get_num_strings(0, &g, l_str);
+  printf("%lu, %lu\n", count, count2);
 }
 
 

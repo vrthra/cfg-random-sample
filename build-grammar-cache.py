@@ -62,10 +62,10 @@ void set_key_count_at_length(int key, max_len_t l_str, max_count_t val) {
 }
 """
 
-def tokens(key, i, rule, uninitialized_arr):
+def tokens(key, i, rule):
     return ','.join(["token_%s_%d_%d" % (key, i, j) for j,token in enumerate(rule)])
 
-def print_def(k_, k_i, rules, uninitialized_arr):
+def print_def(k_, k_i, rules):
     key = k_[1:-1]
 
     rule_def = '// new rule'.join(['''
@@ -76,7 +76,7 @@ Cache_Rule Cache_%(key)s_rule%(rulei)d = {
     .len = %(tokens_num)d,
     .tokens = Cache_%(key)s_rule%(rulei)d_tokens
 };
-''' % {'key':key, 'rulei':i, 'tokens_num': len(rule), 'tokens':tokens(key, i, rule, uninitialized_arr)} for i,rule in enumerate(rules)])
+''' % {'key':key, 'rulei':i, 'tokens_num': len(rule), 'tokens':tokens(key, i, rule)} for i,rule in enumerate(rules)])
     rules_arr = ', '.join([ 'Cache_%s_rule%d' % (key, i) for i,rule in enumerate(rules)])
     s = """
 %(rule_def)s
@@ -92,8 +92,8 @@ Cache_Def Cache_def_%(key)s = {
     """ % {'key':key, 'num_rules': len(rules), 'rules_arr': rules_arr, 'rule_def': rule_def}
     print(s)
 
-def convert_key(k, i, defs, uninitialized_arr):
-    print_def(k, i, defs, uninitialized_arr)
+def convert_key(k, i, defs):
+    print_def(k, i, defs)
 
 def compile_grammar(g, max_l_str):
     uninitialized_arr = '{%s}' % (','.join(['UNINITIALIZED' for i in range(max_l_str)]))
@@ -116,7 +116,7 @@ def compile_grammar(g, max_l_str):
     print(pre)
 
     for i,k in enumerate(g):
-        convert_key(k, i, g[k], uninitialized_arr)
+        convert_key(k, i, g[k])
 
     key_desc = ', '.join(['Cache_def_%(key)s' % {'key':k[1:-1]} for k in g])
 
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     #    gs = f.read()
     #    g = json.loads(gs)
     g = {
-"<start>" : [["<digit>"]],
+"<start>" : [["<digits>"]],
 "<digits>" : [["<digit>", "<digits>"],
         ["<digit>"]],
 "<digit>" : [[str(i)] for i in range(10)]
