@@ -252,7 +252,7 @@ void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, G
 
 void test_count_rules_at() {
 #include "defs.h"
-  int l_str = 8;
+  int l_str = 1;
   max_count_t count = key_get_num_strings(0, &g, l_str);
   printf("%lu\n", count);
   for (int i = 1; i < 100; i++) {
