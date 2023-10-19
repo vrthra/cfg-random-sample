@@ -79,6 +79,7 @@ void key_get_num_strings_at(int key, Grammar* grammar, int l_str, max_count_t at
   if (!is_nonterminal(key)) {
     assert(at == 0);
     printf("%c", key);
+    fflush(stdout);
     return; // we assume every terminal is size 1
   }
 
