@@ -181,8 +181,10 @@ void test_count_rules() {
 void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str, max_count_t at);
 
 void key_get_num_strings_at(int key, Grammar* grammar, int l_str, max_count_t at) {
-  if (!is_nonterminal(key)) 
+  if (!is_nonterminal(key)) { 
+    printf("%c", key);
     return; // we assume every terminal is size 1
+  }
 
   max_count_t s = 0;
   Def* def = &grammar->defs[-key]; // indexed negative
@@ -190,7 +192,7 @@ void key_get_num_strings_at(int key, Grammar* grammar, int l_str, max_count_t at
     Rule* r = &def->rules[i];
     max_count_t v = rule_get_num_strings(key, i, 0, r->tokens, r->len, grammar, l_str);
     if ((s + v) >= at) {
-      printf("reached\n");
+      //printf("reached\n");
       // at - s is the remainder of at that we need to reach.
       rule_get_num_strings_at(key, i, 0, r->tokens, r->len, grammar, l_str, at - s);
       break;
@@ -233,9 +235,11 @@ void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, G
       // sum_rule + (s_ * rem) < at and sum_rule + ((s_+1)*rem) >=at ?
       // This would be the head the remainder would be the tail.
       max_count_t smallest_s_ = find_largest_s(sum_rule, s_, rem, at);
+      key_get_num_strings_at(token, grammar, l_str_x, smallest_s_);
+
       max_count_t r = at - (sum_rule + smallest_s_*rem);
 
-      // Now this remaindeer should go into rule at.
+      // Now this remainder should go into rule at.
       rule_get_num_strings_at(key, rule, pos+1, tail, len-1, grammar, l_str - l_str_x, r);
       // We don't need to continue.
       return;
@@ -250,9 +254,11 @@ void test_count_rules_at() {
 #include "defs.h"
   int l_str = 8;
   max_count_t count = key_get_num_strings(0, &g, l_str);
-
-  key_get_num_strings_at(0, &g, l_str, 10);
   printf("%lu\n", count);
+  for (int i = 1; i < 100; i++) {
+    key_get_num_strings_at(0, &g, l_str, i); // this is l_str long
+    printf("\n");
+  }
 }
 
 
