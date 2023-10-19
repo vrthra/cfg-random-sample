@@ -26,32 +26,10 @@ struct Grammar {
 
 #include "gcache.h"
 
-// def is_nonterminal(key):
-//     return (key[0], key[-1]) == ('<', '>')
-
 bool is_nonterminal(int key) {
   return key <= 0;
 }
 
-// def modifiable(tree):
-//     name, children, *rest = tree
-//     if not is_nonterminal(name): return [name, []]
-//     else:
-//       return [name, [modifiable(c) for c in children]]
-// 
-// def tree_to_string(tree_):
-//     tree = modifiable(tree_)
-//     expanded = []
-//     to_expand = [tree]
-//     while to_expand:
-//         (key, children, *rest), *to_expand = to_expand
-//         if is_nonterminal(key):
-//             #assert children # not necessary
-//             to_expand = children + to_expand
-//         else:
-//             assert not children
-//             expanded.append(key)
-//     return ''.join(expanded)
 int MAX_TREE_NODES_IN_STACK = 1000;
 int MAX_STRING_SIZE=1000;
 
@@ -93,15 +71,6 @@ void test_tree_to_string() {
   printf("%s\n", v);
 }
 
-// def key_get_num_strings(key, grammar, l_str):
-//     if not is_nonterminal(key):
-//         return 1 if l_str == len(key) else 0
-//     s = 0
-//     rules = grammar[key]
-//     for rule in rules:
-//         s += rule_get_num_strings(rule, grammar, l_str) 
-//     return s
-
 max_count_t rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str);
 
 max_count_t key_get_num_strings(int key, Grammar* grammar, int l_str) {
@@ -121,22 +90,6 @@ max_count_t key_get_num_strings(int key, Grammar* grammar, int l_str) {
   set_key_count_at_length(key, l_str, s);
   return s;
 }
-
-// def rule_get_num_strings(rule, grammar, l_str):
-//     if not rule: return 0
-// 
-//     token, *tail = rule
-//     if not tail:
-//         return key_get_num_strings(token, grammar, l_str)
-// 
-//     sum_rule = 0
-//     for l_str_x in range(1, l_str+1): # inclusive
-//         s_ = key_get_num_strings(token, grammar, l_str_x)
-//         if s_ == 0: continue
-// 
-//         rem = rule_get_num_strings(tail, grammar, l_str - l_str_x)
-//         sum_rule += s_ * rem
-//     return sum_rule
 
 max_count_t rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str) {
   max_count_t v = get_rule_count_at_length(key, rule, pos, l_str);
