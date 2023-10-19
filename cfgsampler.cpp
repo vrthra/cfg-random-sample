@@ -1,6 +1,7 @@
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
+#include <time.h>
 
 struct Rule {
   int len;
@@ -169,6 +170,19 @@ void count_rules_at(int l_str, int sample) {
        return;
     }
     key_get_num_strings_at(0, &g_grammar, l_str, sample);
+    return;
+  }
+  if (sample < -1) {
+    for (int z = 0; z > sample; z--) {
+      int i = rand();
+      int j = rand();
+      max_count_t k = i * j;
+
+      max_count_t num = k % (count + 1);
+
+      key_get_num_strings_at(0, &g_grammar, l_str, num); // this is l_str long
+      printf("\n");
+    }
     return;
   }
   for (int i = 0; i < count; i++) {
