@@ -2,12 +2,6 @@
 #include <assert.h>
 #include <stdio.h>
 
-class TreeNode {
-  public:
-    int key; // greater than 256 indicate a nonterminal
-    TreeNode* children[2];
-};
-
 struct Rule {
   int len;
   int* tokens;// i < 0 means key
@@ -28,47 +22,6 @@ struct Grammar {
 
 bool is_nonterminal(int key) {
   return key <= 0;
-}
-
-int MAX_TREE_NODES_IN_STACK = 1000;
-int MAX_STRING_SIZE=1000;
-
-char* tree_to_string(TreeNode* tree, char* expanded) {
-    TreeNode* to_expand[MAX_TREE_NODES_IN_STACK]; // Array to store nodes to expand
-    int to_expand_size = 1;
-    to_expand[0] = tree;
-    to_expand[1] = 0; // remove
-
-    int expanded_size = 0;
-
-    while (to_expand_size > 0) {
-        TreeNode* current = to_expand[--to_expand_size]; // Pop the last node
-
-        if (is_nonterminal(current->key)) {
-            if (current->children[1])
-              to_expand[to_expand_size++] = current->children[1];
-            if (current->children[0])
-              to_expand[to_expand_size++] = current->children[0];
-        } else {
-            expanded[expanded_size++] = (char) current->key;
-        }
-    }
-    expanded[expanded_size++] = '\0'; // Null-terminate the string
-    return expanded;
-}
-
-void test_tree_to_string() {
-  TreeNode left1 = { .key = '(', .children = 0 };
-  TreeNode right1 = { .key = ')', .children = 0 };
-  TreeNode rroot = { .key = -1, .children = {&left1, &right1} };
-  TreeNode left2 = { .key = '(', .children = 0 };
-  TreeNode right2 = { .key = ')', .children = 0 };
-  TreeNode lroot = { .key = -1, .children = {&left2, &right2} };
-  TreeNode root = { .key = -1, .children = {&rroot, &lroot} };
-
-  char expanded[MAX_STRING_SIZE]; // Array to store expanded characters
-  char* v = tree_to_string(&root, expanded);
-  printf("%s\n", v);
 }
 
 max_count_t rule_get_num_strings(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str);
@@ -234,7 +187,6 @@ void count_rules_at(int l_str, int sample) {
 
 int
 main(int argc, char* argv[]) {
-  // test_tree_to_string();
   int depth = 10;
   int sample = -1;
   if (argc > 1) {
