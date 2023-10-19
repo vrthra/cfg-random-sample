@@ -102,12 +102,12 @@ max_count_t find_largest_s(max_count_t sum_rule, max_count_t s_, max_count_t rem
   // find the smallest s_ so that sum_rule + (s_*rem) >= at
   assert(sum_rule + (s_*rem) >= at);
   max_count_t small_s = 0;
-  if ((sum_rule + (small_s*rem)) >= at) {
+  if ((sum_rule + (small_s*rem)) > at) {
       return small_s;
   }
-  for (;sum_rule + (small_s*rem) < at; small_s++);
+  for (;sum_rule + (small_s*rem) <= at; small_s++);
   small_s --;
-  assert(sum_rule + (small_s*rem) < at);
+  assert(sum_rule + (small_s*rem) <= at);
   return small_s;
 }
 
@@ -139,7 +139,7 @@ void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, G
       // multiple heads (0..si..s_), any of which could have lead to `at`
       //
       // We need to split here correctly. Which is the largest 0..si_ so that
-      // sum_rule + (si_ * rem) < at and sum_rule + ((si_+1)*rem) >=at ?
+      // sum_rule + (si_ * rem) <= at and sum_rule + ((si_+1)*rem) > at ?
       // This would be the head the remainder would be the tail.
       max_count_t smallest_si_ = find_largest_s(sum_rule, s_, rem, at);
       key_get_num_strings_at(token, grammar, l_str_x, smallest_si_);
@@ -147,6 +147,8 @@ void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, G
       max_count_t r = at - (sum_rule + smallest_si_*rem);
 
       // Now this remainder should go into rule at.
+
+      // if len-1 == 1 and r == 1 we wont enter because #count ==1. So, r(at) should be 0
       rule_get_num_strings_at(key, rule, pos+1, tail, len-1, grammar, l_str - l_str_x, r);
       // We don't need to continue.
       return;
