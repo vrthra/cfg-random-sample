@@ -76,7 +76,8 @@ max_count_t rule_get_num_strings(int key, int rule, int pos, int* tokens, int le
 void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str, max_count_t at);
 
 void key_get_num_strings_at(int key, Grammar* grammar, int l_str, max_count_t at) {
-  if (!is_nonterminal(key)) { 
+  if (!is_nonterminal(key)) {
+    assert(at == 0);
     printf("%c", key);
     return; // we assume every terminal is size 1
   }
@@ -167,7 +168,7 @@ void count_rules_at(int l_str, int sample) {
     key_get_num_strings_at(0, &g_grammar, l_str, sample);
     return;
   }
-  for (int i = 1; i < count; i++) {
+  for (int i = 0; i < count; i++) {
     if (i > count) break;
     key_get_num_strings_at(0, &g_grammar, l_str, i); // this is l_str long
     printf("\n");
