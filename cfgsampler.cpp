@@ -202,6 +202,7 @@ main(int argc, char* argv[]) {
   if (argc > 2) {
      sample = atoi(argv[2]);
   }
+  srand(time(0));
   count_rules_at(depth, sample);
   printf("\n");
   return 0;
