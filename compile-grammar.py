@@ -81,10 +81,12 @@ if __name__ == '__main__':
     #with open(sys.argv[1]) as f:
     #    gs = f.read()
     #    g = json.loads(gs)
-    g = {
-"<start>" : [["<digits>"]],
-"<digits>" : [["<digit>", "<digits>"],
-        ["<digit>"]],
-"<digit>" : [[str(i)] for i in range(10)]
-}
+    #g = {
+    #        "<start>" : [["<digits>"]],
+    #        "<digits>" : [["<digit>", "<digits>"],
+    #                      ["<digit>"]],
+    #        "<digit>" : [[str(i)] for i in range(10)]
+    #        }
+    import grammar
+    g = grammar.GrammarE
     compile_grammar(g)
