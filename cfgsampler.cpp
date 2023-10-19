@@ -250,10 +250,14 @@ void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, G
 }
 
 
-void count_rules_at(int l_str) {
 #include "defs.h"
+void count_rules_at(int l_str, int sample) {
   max_count_t count = key_get_num_strings(0, &g, l_str);
   printf("%lu\n", count);
+  if (sample > -1) {
+    key_get_num_strings_at(0, &g, l_str, sample);
+    return;
+  }
   for (int i = 1; i < 100; i++) {
     if (i > l_str) break;
     key_get_num_strings_at(0, &g, l_str, i); // this is l_str long
@@ -754,8 +758,14 @@ if __name__ == '__main__':
 int
 main(int argc, char* argv[]) {
   // test_tree_to_string();
-  int depth = atoi(argv[1]);
-  int sample = atoi(argv[2]);
-  count_rules_at(depth);
+  int depth = 10;
+  int sample = -1;
+  if (argc > 1) {
+     depth = atoi(argv[1]);
+  }
+  if (argc > 2) {
+     sample = atoi(argv[2]);
+  }
+  count_rules_at(depth, sample);
   return 0;
 }

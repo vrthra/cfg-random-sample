@@ -12,6 +12,8 @@ GrammarE = {
         '<D>': [[str(i)] for i in range(10)]
         }
 
+Grammar = GrammarE
+
 if __name__ == '__main__':
     import json
-    print(json.dumps(GrammarE, indent=2))
+    print(json.dumps(Grammar, indent=2))

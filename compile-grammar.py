@@ -88,5 +88,5 @@ if __name__ == '__main__':
     #        "<digit>" : [[str(i)] for i in range(10)]
     #        }
     import grammar
-    g = grammar.GrammarE
+    g = grammar.Grammar
     compile_grammar(g)
