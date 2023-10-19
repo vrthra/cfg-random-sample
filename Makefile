@@ -1,12 +1,12 @@
-r: r.cpp d.h defs.h
-	g++ -g -o r r.cpp
+cfgsampler: cfgsampler.cpp gcache.h gdef.h
+	g++ -g -o cfgsampler cfgsampler.cpp
 
-d.h: build-grammar-cache.py grammar.py
-	python3 build-grammar-cache.py > d.h
+gcache.h: build-grammar-cache.py grammar.py
+	python3 build-grammar-cache.py > gcache.h
 
 
-defs.h: compile-grammar.py grammar.py
-	python3 compile-grammar.py > defs.h
+gdef.h: compile-grammar.py grammar.py
+	python3 compile-grammar.py > gdef.h
 
 
 

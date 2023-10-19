@@ -24,7 +24,7 @@ struct Grammar {
   Def* defs; // -i indexes
 };
 
-#include "d.h"
+#include "gcache.h"
 
 // def is_nonterminal(key):
 //     return (key[0], key[-1]) == ('<', '>')
@@ -168,7 +168,7 @@ max_count_t rule_get_num_strings(int key, int rule, int pos, int* tokens, int le
 }
 
 void test_count_rules() {
-#include "defs.h"
+#include "gdef.h"
   // Make sure to set the max_l_str in build-grammar-cache.py appropriately
   int l_str = 8;
   max_count_t count = key_get_num_strings(0, &g, l_str);
