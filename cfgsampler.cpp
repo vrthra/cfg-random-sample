@@ -80,7 +80,7 @@ void key_get_num_strings_at(int key, Grammar* grammar, int l_str, max_count_t at
   if (!is_nonterminal(key)) {
     assert(at == 0);
     printf("%c", key);
-    fflush(stdout);
+    //fflush(stdout);
     return; // we assume every terminal is size 1
   }
 
@@ -202,7 +202,12 @@ main(int argc, char* argv[]) {
   if (argc > 2) {
      sample = atoi(argv[2]);
   }
-  srand(time(0));
+  if (argc > 3) {
+    int r = atoi(argv[3]);
+    srand(r);
+  } else {
+    srand(time(0));
+  }
   count_rules_at(depth, sample);
   printf("\n");
   return 0;
