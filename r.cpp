@@ -191,6 +191,7 @@ void key_get_num_strings_at(int key, Grammar* grammar, int l_str, max_count_t at
     max_count_t v = rule_get_num_strings(key, i, 0, r->tokens, r->len, grammar, l_str);
     if ((s + v) >= at) {
       printf("reached\n");
+      // at - s is the remainder of at that we need to reach.
       rule_get_num_strings_at(key, i, 0, r->tokens, r->len, grammar, l_str, at - s);
       break;
     }
@@ -198,11 +199,13 @@ void key_get_num_strings_at(int key, Grammar* grammar, int l_str, max_count_t at
   }
 }
 
-max_count_t find_smallest_s(max_count_t sum_rule, max_count_t s_, max_count_t rem, max_count_t at) {
+max_count_t find_largest_s(max_count_t sum_rule, max_count_t s_, max_count_t rem, max_count_t at) {
   // find the smallest s_ so that sum_rule + (s_*rem) >= at
   assert(sum_rule + (s_*rem) >= at);
   max_count_t small_s = 0; 
   for (;sum_rule + (small_s*rem) < at; small_s++);
+  small_s --;
+  assert(sum_rule + (small_s*rem) < at);
   return small_s;
 }
 
@@ -211,7 +214,7 @@ void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, G
   if (len == 1) {
     max_count_t v = key_get_num_strings(tokens[0], grammar, l_str); // if not tail
     if (v >= at) {
-      key_get_num_strings_at(tokens[0], grammar, l_str, at - v); // if not tail
+      key_get_num_strings_at(tokens[0], grammar, l_str, at); // if not tail
     }
     return;
   }
@@ -226,10 +229,10 @@ void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, G
     max_count_t rem = rule_get_num_strings(key, rule, pos+1, tail, len-1, grammar, l_str - l_str_x );
     max_count_t sr = s_ * rem;
     if ((sum_rule + sr) >= at) {
-      // We need to split here correctly. Which is the smallest s_ so that
-      // sum_rule + (s_ * rem) >= at ? This would be the head the remainder
-      // would be the tail.
-      max_count_t smallest_s_ = find_smallest_s(sum_rule, s_, rem, at);
+      // We need to split here correctly. Which is the largest s_ so that
+      // sum_rule + (s_ * rem) < at and sum_rule + ((s_+1)*rem) >=at ?
+      // This would be the head the remainder would be the tail.
+      max_count_t smallest_s_ = find_largest_s(sum_rule, s_, rem, at);
       max_count_t r = at - (sum_rule + smallest_s_*rem);
 
       // Now this remaindeer should go into rule at.
@@ -248,7 +251,7 @@ void test_count_rules_at() {
   int l_str = 8;
   max_count_t count = key_get_num_strings(0, &g, l_str);
 
-  key_get_num_strings_at(0, &g, l_str, 10000000);
+  key_get_num_strings_at(0, &g, l_str, 10);
   printf("%lu\n", count);
 }
 
