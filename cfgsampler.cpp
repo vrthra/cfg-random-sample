@@ -233,14 +233,21 @@ void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, G
 
     max_count_t rem = rule_get_num_strings(key, rule, pos+1, tail, len-1, grammar, l_str - l_str_x );
     max_count_t sr = s_ * rem;
-    if ((sum_rule + sr) >= at) {
-      // We need to split here correctly. Which is the largest s_ so that
-      // sum_rule + (s_ * rem) < at and sum_rule + ((s_+1)*rem) >=at ?
-      // This would be the head the remainder would be the tail.
-      max_count_t smallest_s_ = find_largest_s(sum_rule, s_, rem, at);
-      key_get_num_strings_at(token, grammar, l_str_x, smallest_s_);
 
-      max_count_t r = at - (sum_rule + smallest_s_*rem);
+    if ((sum_rule + sr) >= at) {
+      // At this point, we know that we have overshot the `at`, which means that
+      // our `at` is somewhere in the current rule. So, dig in.
+      // There is a complication here. We overshot using the
+      // head (s_) and tail (rem) combinations. Note that we could have
+      // multiple heads (0..si..s_), any of which could have lead to `at`
+      //
+      // We need to split here correctly. Which is the largest 0..si_ so that
+      // sum_rule + (si_ * rem) < at and sum_rule + ((si_+1)*rem) >=at ?
+      // This would be the head the remainder would be the tail.
+      max_count_t smallest_si_ = find_largest_s(sum_rule, s_, rem, at);
+      key_get_num_strings_at(token, grammar, l_str_x, smallest_si_);
+
+      max_count_t r = at - (sum_rule + smallest_si_*rem);
 
       // Now this remainder should go into rule at.
       rule_get_num_strings_at(key, rule, pos+1, tail, len-1, grammar, l_str - l_str_x, r);
