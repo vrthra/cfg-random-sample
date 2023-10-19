@@ -178,6 +178,83 @@ void test_count_rules() {
 }
 
 
+void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str, max_count_t at);
+
+void key_get_num_strings_at(int key, Grammar* grammar, int l_str, max_count_t at) {
+  if (!is_nonterminal(key)) 
+    return; // we assume every terminal is size 1
+
+  max_count_t s = 0;
+  Def* def = &grammar->defs[-key]; // indexed negative
+  for (int i = 0; i < def->len; i++) {
+    Rule* r = &def->rules[i];
+    max_count_t v = rule_get_num_strings(key, i, 0, r->tokens, r->len, grammar, l_str);
+    if ((s + v) >= at) {
+      printf("reached\n");
+      rule_get_num_strings_at(key, i, 0, r->tokens, r->len, grammar, l_str, at - s);
+      break;
+    }
+    s += v;
+  }
+}
+
+max_count_t find_smallest_s(max_count_t sum_rule, max_count_t s_, max_count_t rem, max_count_t at) {
+  // find the smallest s_ so that sum_rule + (s_*rem) >= at
+  assert(sum_rule + (s_*rem) >= at);
+  max_count_t small_s = 0; 
+  for (;sum_rule + (small_s*rem) < at; small_s++);
+  return small_s;
+}
+
+void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, Grammar* grammar, int l_str, max_count_t at) {
+  if (!len) return; // empty rule
+  if (len == 1) {
+    max_count_t v = key_get_num_strings(tokens[0], grammar, l_str); // if not tail
+    if (v >= at) {
+      key_get_num_strings_at(tokens[0], grammar, l_str, at - v); // if not tail
+    }
+    return;
+  }
+
+  max_count_t sum_rule = 0;
+  int token = tokens[0];
+  int *tail = tokens+1;
+  for(int l_str_x = 1; l_str_x < l_str+1; l_str_x++) {
+    max_count_t s_ = key_get_num_strings(token, grammar, l_str_x);
+    if (s_ == 0) continue;
+
+    max_count_t rem = rule_get_num_strings(key, rule, pos+1, tail, len-1, grammar, l_str - l_str_x );
+    max_count_t sr = s_ * rem;
+    if ((sum_rule + sr) >= at) {
+      // We need to split here correctly. Which is the smallest s_ so that
+      // sum_rule + (s_ * rem) >= at ? This would be the head the remainder
+      // would be the tail.
+      max_count_t smallest_s_ = find_smallest_s(sum_rule, s_, rem, at);
+      max_count_t r = at - (sum_rule + smallest_s_*rem);
+
+      // Now this remaindeer should go into rule at.
+      rule_get_num_strings_at(key, rule, pos+1, tail, len-1, grammar, l_str - l_str_x, r);
+      // We don't need to continue.
+      return;
+    }
+    sum_rule += sr;
+  }
+  return;
+}
+
+
+void test_count_rules_at() {
+#include "defs.h"
+  int l_str = 8;
+  max_count_t count = key_get_num_strings(0, &g, l_str);
+
+  key_get_num_strings_at(0, &g, l_str, 10000000);
+  printf("%lu\n", count);
+}
+
+
+
+
 /*
 E1 = {
  '<start>': [['<E>']],
@@ -668,6 +745,6 @@ if __name__ == '__main__':
 int
 main(int argc, char* argv[]) {
   // test_tree_to_string();
-  test_count_rules();
+  test_count_rules_at();
   return 0;
 }
