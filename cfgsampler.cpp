@@ -265,6 +265,10 @@ void count_rules_at(int l_str, int sample) {
   max_count_t count = key_get_num_strings(0, &g_grammar, l_str);
   printf("%lu\n", count);
   if (sample > -1) {
+    if (sample >= count) {
+       printf("inaccessible (%d/%lu)\n", sample, count);
+       return;
+    }
     key_get_num_strings_at(0, &g_grammar, l_str, sample);
     return;
   }
