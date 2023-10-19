@@ -171,9 +171,9 @@ void test_count_rules() {
 #include "gdef.h"
   // Make sure to set the max_l_str in build-grammar-cache.py appropriately
   int l_str = 8;
-  max_count_t count = key_get_num_strings(0, &g, l_str);
+  max_count_t count = key_get_num_strings(0, &g_grammar, l_str);
   //l_str = 32;// I think this overflows
-  max_count_t count2 = key_get_num_strings(0, &g, l_str);
+  max_count_t count2 = key_get_num_strings(0, &g_grammar, l_str);
   printf("%lu, %lu\n", count, count2);
 }
 
@@ -250,17 +250,17 @@ void rule_get_num_strings_at(int key, int rule, int pos, int* tokens, int len, G
 }
 
 
-#include "defs.h"
+#include "gdef.h"
 void count_rules_at(int l_str, int sample) {
-  max_count_t count = key_get_num_strings(0, &g, l_str);
+  max_count_t count = key_get_num_strings(0, &g_grammar, l_str);
   printf("%lu\n", count);
   if (sample > -1) {
-    key_get_num_strings_at(0, &g, l_str, sample);
+    key_get_num_strings_at(0, &g_grammar, l_str, sample);
     return;
   }
   for (int i = 1; i < 100; i++) {
     if (i > l_str) break;
-    key_get_num_strings_at(0, &g, l_str, i); // this is l_str long
+    key_get_num_strings_at(0, &g_grammar, l_str, i); // this is l_str long
     printf("\n");
   }
 }

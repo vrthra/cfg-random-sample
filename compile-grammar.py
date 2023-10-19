@@ -67,7 +67,7 @@ const int %(key_desc)s;
 
     post = """
 Def my_defs[] = {%(key_desc)s};
-Grammar g = {
+Grammar g_grammar = {
     .len = %(n_defs)d,
     .defs = my_defs
 };""" % {'key_desc': key_desc, 'n_defs': len(g.keys())}
