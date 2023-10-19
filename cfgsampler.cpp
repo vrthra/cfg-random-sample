@@ -204,7 +204,10 @@ void key_get_num_strings_at(int key, Grammar* grammar, int l_str, max_count_t at
 max_count_t find_largest_s(max_count_t sum_rule, max_count_t s_, max_count_t rem, max_count_t at) {
   // find the smallest s_ so that sum_rule + (s_*rem) >= at
   assert(sum_rule + (s_*rem) >= at);
-  max_count_t small_s = 0; 
+  max_count_t small_s = 0;
+  if ((sum_rule + (small_s*rem)) >= at) {
+      return small_s;
+  }
   for (;sum_rule + (small_s*rem) < at; small_s++);
   small_s --;
   assert(sum_rule + (small_s*rem) < at);
@@ -767,5 +770,6 @@ main(int argc, char* argv[]) {
      sample = atoi(argv[2]);
   }
   count_rules_at(depth, sample);
+  printf("\n");
   return 0;
 }
