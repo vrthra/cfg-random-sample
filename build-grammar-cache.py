@@ -145,7 +145,7 @@ if __name__ == '__main__':
     import grammar
     g = grammar.Grammar
 
-    max_l_str = 100;
+    max_l_str = int(sys.argv[1])
 
     print(PRE % {'max_l' : max_l_str, 'num_keys': len(g.keys()), 'key_len_cache_init': ', '.join(['UNINITIALIZED' for i in range(max_l_str*len(g.keys()))]) })
     compile_grammar(g, max_l_str)
